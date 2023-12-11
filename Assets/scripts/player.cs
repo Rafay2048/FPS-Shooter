@@ -4,10 +4,19 @@ using UnityEngine;
 
 public class player : MonoBehaviour
 {
+    
+    public CharacterController mycc;
+    public Transform firingPosition;
     public float mousesensitivity = 100f;
     public Transform myCameraHead;
     float cameraVerticalMovement;
-
+    public float gunRange = 100f;
+    public GameObject bullet;
+    public GameObject muzzleFlash;
+    public GameObject bulletimpact;
+   // public Image crosshair;
+    //so we have something to look at
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -19,35 +28,50 @@ public class player : MonoBehaviour
     {
         playermovement();
         mouseMovement();
-    }
+        shooting();
 
-    private void mouseMovement()
+        //  firingPosition.LookAt(crosshair.transform);
+
+        //Debug.DrawRay(firingPosition.position, firingPosition.forward, Color.red);
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            //only log the value using debug if the raycast has actually hiy something
+            if (Physics.Raycast(firingPosition.position, firingPosition.forward, out hit, gunRange))
+            {
+                firingPosition.LookAt(hit.point);
+
+                Instantiate(bullet,firingPosition.position, firingPosition.rotation);
+
+                Debug.Log(hit.transform.name);
+            }
+        Instantiate(bullet, firingPosition.position, firingPosition.rotation);
+        }
+    }
+    private void shooting()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            //only log the value using debug if the raycast has actually hiy something
+            if (Physics.Raycast(firingPosition.position, firingPosition.forward, out hit, gunRange))
+            {
+                firingPosition.LookAt(hit.point);
 
+                Instantiate(bulletimpact, hit.point, Quaternion.Euler(hit.normal));
 
-        float xmovement = Input.GetAxisRaw("Mouse X") * mousesensitivity * Time.deltaTime;
+                Instantiate(bullet, firingPosition.position, firingPosition.rotation);
 
-
-        transform.Rotate(Vector3.up * xmovement);
-
-        ////////////////////////////////////////////////////////////////////////////////////
-
-        cameraVerticalRotation += ymovement;
-        float ymovement = Input.GetAxisRaw("Mouse Y") * mousesensitivity * Time.deltaTime;
-
-        float cameraVerticalMovement = Mathf.Clamp(ymovement, -50f, 50f);
-
-        ymovement = ymovement * -1;
-        ymovement = Mathf.Clamp(ymovement, -50f, 50f);
-
-        // myCameraHead.transform.Rotate(Vector3.right * ymovement);
-
-        myCameraHead.rotation = Quaternion.Euler(cameraVerticalMovement), 0, 0);
-
-  
-        //Debug.Log(ymovement);
+                Debug.Log(hit.transform.name);
+            }
+            Instantiate(bullet, firingPosition.position, firingPosition.rotation);
+            Instantiate(muzzleFlash, firingPosition.position, firingPosition.rotation);
+            
+        }
 
     }
+
 
     private void playermovement()
     {
@@ -57,10 +81,33 @@ public class player : MonoBehaviour
 
         Vector3 movement = transform.right * moveX + transform.forward * moveZ;
 
-        GetComponent<CharacterController>().Move(movement);
+        //get cc and use its move functiom
+        //use the move function
+        mycc.Move(movement);
 
     }
-        
+
+    private void mouseMovement()
+    {
+        float xmovement = Input.GetAxisRaw("Mouse X") * mousesensitivity * Time.deltaTime;
+        transform.Rotate(Vector3.up * xmovement); //rotating left/right
+
+
+
+
+
+        float ymovement = Input.GetAxisRaw("Mouse Y") * mousesensitivity * Time.deltaTime;
+        cameraVerticalMovement = Mathf.Clamp(ymovement, -50f, 50f);
+        cameraVerticalMovement += ymovement;
+
+        //data is input in opposite form
+        ymovement = ymovement * -1;
+        myCameraHead.localRotation = Quaternion.Euler(cameraVerticalMovement, 0, 0);// movement up/down
+        //Debug.Log(ymovement);
+
+    }
+
+
 }
 
 
