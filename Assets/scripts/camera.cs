@@ -13,7 +13,7 @@ public class camera : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
       transform.position = playerhead.position;
       transform.rotation = playerhead.rotation;

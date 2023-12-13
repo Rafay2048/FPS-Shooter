@@ -14,6 +14,7 @@ public class player : MonoBehaviour
     public GameObject bullet;
     public GameObject muzzleFlash;
     public GameObject bulletimpact;
+    public float closerange;
    // public Image crosshair;
     //so we have something to look at
     
@@ -34,20 +35,7 @@ public class player : MonoBehaviour
 
         //Debug.DrawRay(firingPosition.position, firingPosition.forward, Color.red);
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit;
-            //only log the value using debug if the raycast has actually hiy something
-            if (Physics.Raycast(firingPosition.position, firingPosition.forward, out hit, gunRange))
-            {
-                firingPosition.LookAt(hit.point);
 
-                Instantiate(bullet,firingPosition.position, firingPosition.rotation);
-
-                Debug.Log(hit.transform.name);
-            }
-        Instantiate(bullet, firingPosition.position, firingPosition.rotation);
-        }
     }
     private void shooting()
     {
@@ -55,11 +43,18 @@ public class player : MonoBehaviour
         {
             RaycastHit hit;
             //only log the value using debug if the raycast has actually hiy something
-            if (Physics.Raycast(firingPosition.position, firingPosition.forward, out hit, gunRange))
+            if (Physics.Raycast(myCameraHead.position, myCameraHead.forward, out hit, gunRange))
             {
+                if (Vector3.Distance(firingPosition.position, hit.point) > closerange)
+                {
+
                 firingPosition.LookAt(hit.point);
 
-                Instantiate(bulletimpact, hit.point, Quaternion.Euler(hit.normal));
+                }
+
+
+
+                Instantiate(bulletimpact, hit.point, Quaternion.LookRotation(hit.normal));
 
                 Instantiate(bullet, firingPosition.position, firingPosition.rotation);
 
