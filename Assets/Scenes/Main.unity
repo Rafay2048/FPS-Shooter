@@ -1425,8 +1425,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1466458626}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -13.63, y: 2.31, z: 3.12}
-  m_LocalScale: {x: 1, y: 7.4295454, z: 4.3670344}
+  m_LocalPosition: {x: -16.44, y: 2.31, z: 3.08}
+  m_LocalScale: {x: 6.4603543, y: 7.4295454, z: 4.3670344}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1445812189}
@@ -1899,6 +1899,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07606e7f7b1298546b33d756b8cc5ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gravityModifier: 0.1
+  jumpheight: 10
   mycc: {fileID: 1903220853}
   firingPosition: {fileID: 611521327}
   mousesensitivity: 200
@@ -1907,6 +1909,7 @@ MonoBehaviour:
   bullet: {fileID: 3965035682295047109, guid: bf839c698558a584a84429334d839d2a, type: 3}
   muzzleFlash: {fileID: 1000010254994808, guid: 9defeac88977c0d448aa4541073ee9e4, type: 3}
   bulletimpact: {fileID: 7129600229629123318, guid: 2d25cec9fd163ad4d88035c7a348d532, type: 3}
+  closerange: 0
 --- !u!143 &1903220853
 CharacterController:
   m_ObjectHideFlags: 0

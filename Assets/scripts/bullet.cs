@@ -22,7 +22,6 @@ public class bullet : MonoBehaviour
         if(life <= 0)
         {
             Destroy(gameObject);
-
         }
         else
         {
