@@ -4,28 +4,49 @@ using UnityEngine;
 
 public class player : MonoBehaviour
 {
-    public float closerange;
-    public float walkingspeed = 10f;
-    public float crouchingspeed = 5f;
-    public float gravityModifier = 1f;
-    public float jumpheight = 10f;
+    //movement
     public float mousesensitivity = 100f;
-    public float gunRange = 100f;
-    public Transform firingPosition;
+    public float runningspeed = 30f;
+    public float walkingspeed = 15f;
+    public CharacterController mycc;
     public Transform myCameraHead;
+    float cameraVerticalMovement;
+
+    //crouch
+    public float crouchingspeed = 5f;
+    Vector3 crouchscale = new Vector3(1, 0.5f, 1);
     public Transform myBody;
+    bool isCrouching = false;
+    float initialControllerHeight;
+    Vector3 normalscale;
+    Vector3 playerscale;
+
+    //jumping
+    public float jumpheight = 10f;
+    public float gravityModifier = 1f;
+    Vector3 velocity;
+
+    //bullet//gun
+    public float gunRange = 100f;
     public GameObject bullet;
     public GameObject muzzleFlash;
     public GameObject bulletimpact;
-    public CharacterController mycc;
-    Vector3 normalscale;
-    Vector3 yvelocity;
-    Vector3 playerscale;
-    Vector3 crouchscale = new Vector3(1, 0.5f, 1);
-    float cameraVerticalMovement;
-    float initialControllerHeight;
-    bool isCrouching = false;
-    
+    public Transform firingPosition;
+    public float closerange;
+
+
+    //animator
+    public Animator myAnimator;
+
+
+    //sliding
+    public float slidingspeed = 20f;
+    bool isSliding = false;
+    bool isRunning = false;
+    public float slidetime = 0;
+    public float maxSlideTime = 3;
+
+
 
     // public Image crosshair;
     //so we have something to look at
@@ -44,11 +65,11 @@ public class player : MonoBehaviour
     {
         playermovement();
         mouseMovement();
-        shooting();
+        
         jump();
         crouch();
-        //sprint();
-
+        sprint();
+        sliding();
 
         //firingPosition.LookAt(crosshair.transform);
 
@@ -74,9 +95,18 @@ public class player : MonoBehaviour
 
     private void StartCrouching()
     {
+
         myBody.localScale = crouchscale;
         mycc.height /= 2;
         isCrouching = true;
+
+        if(isRunning)
+        {
+            //this velocity is being passed on to mycc by 
+            velocity = Vector3.ProjectOnPlane(myCameraHead.transform.forward, Vector3.up);
+            slidetime = 0;
+            isSliding = true;
+        }
     }
 
     private void EndCrouching()
@@ -90,41 +120,19 @@ public class player : MonoBehaviour
 
     private void sprint()
     {
-
-
-
-
-
-    }
-
-
-    private void shooting()
-    {
-        if (Input.GetMouseButtonDown(0))
+        if(Input.GetKey(KeyCode.LeftShift))
         {
-            RaycastHit hit;
-            //only log the value using debug if the raycast has actually hiy something
-            if (Physics.Raycast(myCameraHead.position, myCameraHead.forward, out hit, gunRange))
-            {
-                if (Vector3.Distance(firingPosition.position, hit.point) > closerange)
-                {
-
-                firingPosition.LookAt(hit.point);
-
-                }
-
-                Instantiate(bulletimpact, hit.point, Quaternion.LookRotation(hit.normal));
-
-                Instantiate(bullet, firingPosition.position, firingPosition.rotation);
-
-                Debug.Log(hit.transform.name);
-            }
-            Instantiate(bullet, firingPosition.position, firingPosition.rotation);
-            Instantiate(muzzleFlash, firingPosition.position, firingPosition.rotation);
-            
+            isRunning = true;
         }
 
+        else
+        {
+            isRunning = false;
+        }
     }
+
+
+   
 
 
     private void playermovement()
@@ -134,43 +142,56 @@ public class player : MonoBehaviour
         float moveZ = Input.GetAxis("Vertical");
 
         Vector3 movement = transform.right * moveX + transform.forward * moveZ;
+        if (isSliding)
 
+        { 
+            if (isRunning && !isCrouching)
+            {
+                movement *= (runningspeed * Time.deltaTime);
+            }
+
+            else
+            {
+                if (isCrouching)
+                {
+                    movement *= (crouchingspeed * Time.deltaTime);
+
+                }
+                else
+                {
+                    movement *= (walkingspeed * Time.deltaTime);
+                }
+            }
+        }
+
+
+        
         //get cc and use its move functiom
         //use the move function
 
-        if(isCrouching) //if isCrouching is = true
-        {
 
-            movement *= (crouchingspeed * Time.deltaTime);
-
-        }
-        else
-        {
-
-            movement *= (walkingspeed * Time.deltaTime);
-
-        }
-
-        mycc.Move(movement); 
+        Debug.Log(movement.magnitude);
+        mycc.Move(movement);
 
         //adding new physics value to entire previous velocity
         //Vector3 yvelocity = myccivelocity + Physics.gravity;
 
-        yvelocity.y += mycc.velocity.y + Physics.gravity.y * gravityModifier;  //(0, -1, 0)
+        myAnimator.SetFloat("playerspeed", movement.magnitude);
+        velocity.y += mycc.velocity.y + Physics.gravity.y * gravityModifier;  //(0, -1, 0)
 
 
         if(mycc.isGrounded)
         {
 
-            Debug.Log("is grounded");
-            yvelocity.y = Physics.gravity.y * Time.deltaTime;
+            //Debug.Log("is grounded");
+            velocity.y = Physics.gravity.y * Time.deltaTime;
             // in our y vector = -1 * 0.016 = -0.016
 
         }
 
 
 
-        mycc.Move(yvelocity);
+        mycc.Move(velocity);
 
     }
 
@@ -192,18 +213,33 @@ public class player : MonoBehaviour
         myCameraHead.localRotation = Quaternion.Euler(cameraVerticalMovement, 0, 0); // movement up/down
         //Debug.Log(ymovement);
         
-    }                          
+    }
 
     private void jump()
-
     {   //only allow to jump if we are touching the ground
 
-        if(Input.GetButtonDown("jump") && mycc.isGrounded)
-            {
-              yvelocity.y = jumpheight; //yvelocity is being subtracted in playermovement to create an effect of gravity
-              mycc.Move(yvelocity);
-            }
+        if (Input.GetButtonDown("Jump") && mycc.isGrounded)
+        {
+            velocity.y = jumpheight; //yvelocity is being subtracted in playermovement to create an effect of gravity
+            mycc.Move(velocity);
+        }
 
+    }
+    private void sliding()
+    {
+        if (isSliding)
+        {
+
+            slidetime -= Time.deltaTime;
+
+
+        }
+        if (slidetime > maxSlideTime)
+        {
+
+            isSliding = false;
+            velocity = Vector3.zero;
+        }
     }
 
 }
