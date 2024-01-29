@@ -26,14 +26,6 @@ public class player : MonoBehaviour
     public float gravityModifier = 1f;
     Vector3 velocity;
 
-    //bullet//gun
-    public float gunRange = 100f;
-    public GameObject bullet;
-    public GameObject muzzleFlash;
-    public GameObject bulletimpact;
-    public Transform firingPosition;
-    public float closerange;
-
 
     //animator
     public Animator myAnimator;
@@ -170,7 +162,7 @@ public class player : MonoBehaviour
         //use the move function
 
 
-        Debug.Log(movement.magnitude);
+        //Debug.Log(movement.magnitude);
         mycc.Move(movement);
 
         //adding new physics value to entire previous velocity
@@ -205,11 +197,14 @@ public class player : MonoBehaviour
 
 
         float ymovement = Input.GetAxisRaw("Mouse Y") * mousesensitivity * Time.deltaTime;
-        cameraVerticalMovement = Mathf.Clamp(ymovement, -50f, 50f);
+
+        ymovement = ymovement * -1;          
         cameraVerticalMovement += ymovement;
 
+        cameraVerticalMovement = Mathf.Clamp(cameraVerticalMovement, -90f, 90f);
+
+
         //data is input in opposite form
-        ymovement = ymovement * -1;          
         myCameraHead.localRotation = Quaternion.Euler(cameraVerticalMovement, 0, 0); // movement up/down
         //Debug.Log(ymovement);
         
