@@ -198,13 +198,13 @@ public class player : MonoBehaviour
 
         float ymovement = Input.GetAxisRaw("Mouse Y") * mousesensitivity * Time.deltaTime;
 
-        ymovement = ymovement * -1;          
+        
+        ymovement = ymovement * -1;//data is input in opposite form    
         cameraVerticalMovement += ymovement;
 
-        cameraVerticalMovement = Mathf.Clamp(cameraVerticalMovement, -90f, 90f);
+        cameraVerticalMovement = Mathf.Clamp(cameraVerticalMovement, -90f, 90f);//limits how much player can look up and down
 
 
-        //data is input in opposite form
         myCameraHead.localRotation = Quaternion.Euler(cameraVerticalMovement, 0, 0); // movement up/down
         //Debug.Log(ymovement);
         
